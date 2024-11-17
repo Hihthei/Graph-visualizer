@@ -1,12 +1,13 @@
 [tool.poetry]
-name = "graph-visualiser"
+name = "Graph visualiser"
 version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.12.4"
+networkx = "^3.4.2"
+matplotlib = "^3.9.2"
 
 
 [build-system]
