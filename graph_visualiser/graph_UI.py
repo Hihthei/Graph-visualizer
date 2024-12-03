@@ -7,10 +7,10 @@ from graph import GraphNetX
 class InteractionArea(QFrame):
     def __init__(self):
         super().__init__()
-        self.circles = []  # List to store positions of circles
-        self.lines = []  # List to store lines between circles
-        self.selected_circle = None  # Currently selected circle
-        self.graph = GraphNetX()  # Logical representation of the graph
+        self.circles = []
+        self.lines = []
+        self.selected_circle = None
+        self.graph = GraphNetX()
 
     def mousePressEvent(self, event: QMouseEvent):
         clicked_position = event.pos()
@@ -45,33 +45,33 @@ class InteractionArea(QFrame):
 
     def toggle_line(self, start_circle, end_circle):
         if (start_circle, end_circle) in self.lines or (end_circle, start_circle) in self.lines:
-            # Remove the line if it already exists (both visually and logically)
             self.lines = [
                 line for line in self.lines
-                if line != (start_circle, end_circle) and line != (end_circle, start_circle)
+                if  line != (start_circle, end_circle)
+                and line != (end_circle, start_circle)
             ]
             self.graph.del_edge(self.circles.index(start_circle), self.circles.index(end_circle))
         else:
-            # Create a new line (both visually and logically)
             self.lines.append((start_circle, end_circle))
             self.graph.add_edge(self.circles.index(start_circle), self.circles.index(end_circle))
 
     def add_circle(self, position):
         if not self.is_circle_too_close(position):
             self.circles.append(position)
-            self.graph.add_node(len(self.circles) - 1)  # Add node to the logical graph
+            self.graph.add_node(len(self.circles) - 1)
 
     def remove_circle(self, circle):
         index = self.circles.index(circle)
         self.circles.remove(circle)
         self.lines = [line for line in self.lines if circle not in line]
-        self.graph.del_node(index)  # Remove node from the logical graph
-        # Update lines in the logical graph
+        self.graph.del_node(index)
+
         for line in list(self.lines):
             start, end = line
             if circle == start or circle == end:
                 self.lines.remove(line)
                 self.graph.del_edge(self.circles.index(start), self.circles.index(end))
+
         if self.selected_circle == circle:
             self.selected_circle = None
 
@@ -80,6 +80,7 @@ class InteractionArea(QFrame):
             distance = (circle_center - position).manhattanLength()
             if distance <= 30:
                 return circle_center
+
         return None
 
     def is_circle_too_close(self, position):
@@ -109,5 +110,5 @@ class InteractionArea(QFrame):
         self.circles = []
         self.lines = []
         self.selected_circle = None
-        self.graph.clear_graph()  # Clear the logical graph
+        self.graph.clear_graph()
         self.update()

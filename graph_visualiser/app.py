@@ -21,7 +21,6 @@ class MainWindow(QMainWindow):
         self.interaction_area.setFixedSize(600, 400)
         main_layout.addWidget(self.interaction_area, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # Dropdown (combo box) for graph methods
         self.method_combo_box = QComboBox()
         self.method_combo_box.addItems(["bfs", "dfs"])
         main_layout.addWidget(self.method_combo_box, alignment=Qt.AlignmentFlag.AlignCenter)
