@@ -3,3 +3,4 @@ Implementation.pdf
 .idea/
 .venv/
 poetry.lock
+*__pycache__/

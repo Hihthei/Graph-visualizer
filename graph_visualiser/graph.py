@@ -1,8 +1,67 @@
 import networkx as nx
 
+class GraphNetX:
+    def __init__(self):
+        self.graph = nx.Graph()
 
-def generate_connected_random_graph(node, edges):
-    while True:
-        grph = nx.gnm_random_graph(n=node, m=edges)
-        if nx.is_connected(grph):
-            return grph
+    def add_node(self, node):
+        self.graph.add_node(node)
+
+    def del_node(self, node):
+        if node in self.graph:
+            self.graph.remove_node(node)
+
+    def add_edge(self, node1, node2):
+        self.graph.add_edge(node1, node2)
+
+    def del_edge(self, node1, node2):
+        if self.graph.has_edge(node1, node2):
+            self.graph.remove_edge(node1, node2)
+
+    def clear_graph(self):
+        self.graph.clear()
+
+    def bfs(self, start_node):
+        visited = set()
+        order = []
+        queue = [start_node]
+
+        while queue:
+            node = queue.pop(0)
+            if node not in visited:
+                visited.add(node)
+                order.append(node)
+                queue.extend(neighbor for neighbor in self.graph.neighbors(node) if neighbor not in visited)
+
+        return order
+
+    def dfs(self, start_node):
+        visited = set()
+        return self._dfs_recursive(start_node, visited)
+
+    def _dfs_recursive(self, node, visited):
+        visited.add(node)
+        order = [node]
+
+        for neighbor in self.graph.neighbors(node):
+            if neighbor not in visited:
+                order.extend(self._dfs_recursive(neighbor, visited))
+
+        return order
+
+    def get_nodes(self):
+        return list(self.graph.nodes())
+
+    def get_edges(self):
+        return list(self.graph.edges())
+
+    def has_node(self, node):
+        return self.graph.has_node(node)
+
+    def has_edge(self, node1, node2):
+        return self.graph.has_edge(node1, node2)
+
+    def degree(self, node):
+        if self.graph.has_node(node):
+            return self.graph.degree(node)
+        return None
