@@ -18,6 +18,9 @@ class GraphNetX:
         if self.graph.has_edge(node1, node2):
             self.graph.remove_edge(node1, node2)
 
+    def clear_edges(self):
+        self.graph.remove_edges_from(list(self.graph.edges))
+
     def clear_graph(self):
         self.graph.clear()
 
