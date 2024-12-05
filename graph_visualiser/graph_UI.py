@@ -188,29 +188,26 @@ class InteractionArea(QFrame):
     def random_link_selected_nodes(self):
         if len(self.visited_nodes) > 1:
             nodes = list(self.visited_nodes)
-            random.shuffle(nodes)  # Mélanger les nœuds pour un départ aléatoire
+            self.clear_edges(nodes)
 
-            # Étape 1 : Créer un arbre couvrant minimal (inspiré de Prim)
+            random.shuffle(nodes)
+
             connected_nodes = set()
             connected_nodes.add(nodes[0])
             edges_to_add = []
 
             while len(connected_nodes) < len(nodes):
-                # Trouver un nœud non connecté et le lier à un nœud déjà connecté
                 unconnected_node = random.choice([n for n in nodes if n not in connected_nodes])
                 connected_node = random.choice(list(connected_nodes))
 
-                # Ajouter l'arête pour connecter ce nœud
                 edges_to_add.append((connected_node, unconnected_node))
                 connected_nodes.add(unconnected_node)
 
-            # Ajouter les arêtes de l'arbre couvrant minimum
             for start, end in edges_to_add:
                 self.lines.append((start, end))
                 self.graph.add_edge(start, end)
 
-            # Étape 2 : Ajout progressif de liens supplémentaires
-            max_additional_links = min(len(nodes) // 2, 3)  # Réduction du nombre de liens supplémentaires
+            max_additional_links = min(len(nodes) // 2, 3)
             added_links = 0
 
             possible_pairs = [
