@@ -39,12 +39,28 @@ class InteractionArea(QFrame):
                 self.remove_circle(clicked_circle)
             self.update()
 
+    def keyPressEvent(self, event: QKeyEvent):
+        if event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_A:
+            if len(self.visited_nodes) == len(self.circles.keys()):
+                self.deselect_all_nodes()
+            else:
+                self.select_all_nodes()
+
+            self.update()
+
     def get_selected(self, node_id):
         if node_id in self.visited_nodes:
             self.visited_nodes.remove(node_id)
         else:
             self.visited_nodes.add(node_id)
         self.update()
+
+    def select_all_nodes(self):
+        for node_id in self.circles.keys():
+            self.visited_nodes.add(node_id)
+
+    def deselect_all_nodes(self):
+        self.visited_nodes.clear()
 
     def handle_left_click(self, position):
         clicked_circle = self.find_circle(position)
@@ -156,15 +172,6 @@ class InteractionArea(QFrame):
 
             painter.drawLine(start_adjusted.toPoint(), end_adjusted.toPoint())
 
-    def keyPressEvent(self, event: QKeyEvent):
-        if event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_A:
-            self.select_all_nodes()
-            self.update()
-
-    def select_all_nodes(self):
-        for node_id in self.circles.keys():
-            self.get_selected(node_id)
-
     def full_link_selected_nodes(self):
         if len(self.visited_nodes) > 1:
             nodes = list(self.visited_nodes)
@@ -181,26 +188,29 @@ class InteractionArea(QFrame):
     def random_link_selected_nodes(self):
         if len(self.visited_nodes) > 1:
             nodes = list(self.visited_nodes)
-            self.clear_edges(nodes)
+            random.shuffle(nodes)  # Mélanger les nœuds pour un départ aléatoire
 
-            random.shuffle(nodes)
-
+            # Étape 1 : Créer un arbre couvrant minimal (inspiré de Prim)
             connected_nodes = set()
             connected_nodes.add(nodes[0])
             edges_to_add = []
 
             while len(connected_nodes) < len(nodes):
+                # Trouver un nœud non connecté et le lier à un nœud déjà connecté
                 unconnected_node = random.choice([n for n in nodes if n not in connected_nodes])
                 connected_node = random.choice(list(connected_nodes))
 
+                # Ajouter l'arête pour connecter ce nœud
                 edges_to_add.append((connected_node, unconnected_node))
                 connected_nodes.add(unconnected_node)
 
+            # Ajouter les arêtes de l'arbre couvrant minimum
             for start, end in edges_to_add:
                 self.lines.append((start, end))
                 self.graph.add_edge(start, end)
 
-            max_additional_links = min(len(nodes) // 2, 5)
+            # Étape 2 : Ajout progressif de liens supplémentaires
+            max_additional_links = min(len(nodes) // 2, 3)  # Réduction du nombre de liens supplémentaires
             added_links = 0
 
             possible_pairs = [
@@ -218,6 +228,7 @@ class InteractionArea(QFrame):
 
                 possible_pairs.remove((start, end))
 
+            # Désélectionner tous les nœuds après l'action
             self.clear_selection()
             self.update()
 
