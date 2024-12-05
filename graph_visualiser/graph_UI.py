@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QFrame
-from PyQt6.QtGui import QColor, QPainter, QMouseEvent, QPen
+from PyQt6.QtGui import QColor, QPainter, QMouseEvent, QPen, QKeyEvent
 from PyQt6.QtCore import Qt, QPoint, QPointF, QTimer
 
 
@@ -10,6 +10,8 @@ import random
 class InteractionArea(QFrame):
     def __init__(self):
         super().__init__()
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
         self.circles = {}
         self.lines = []
         self.selected_circle = None
@@ -137,6 +139,25 @@ class InteractionArea(QFrame):
             end_adjusted = end_pos - unit_direction * radius
 
             painter.drawLine(start_adjusted.toPoint(), end_adjusted.toPoint())
+
+    def keyPressEvent(self, event: QKeyEvent):
+        if event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_A:
+            self.select_all_nodes()
+            self.update()
+
+    def select_all_nodes(self):
+        self.visited_nodes = set(self.circles.keys())
+
+    def link_selected_nodes(self):
+        if len(self.visited_nodes) > 1:
+            # Créer des liens entre tous les nœuds sélectionnés
+            nodes = list(self.visited_nodes)
+            for i in range(len(nodes)):
+                for j in range(i + 1, len(nodes)):
+                    if (nodes[i], nodes[j]) not in self.lines and (nodes[j], nodes[i]) not in self.lines:
+                        self.lines.append((nodes[i], nodes[j]))
+                        self.graph.add_edge(nodes[i], nodes[j])
+        self.update()
 
     def generate_position(self):
         x = random.randint(50, self.width() - 50)
