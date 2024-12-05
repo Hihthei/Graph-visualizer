@@ -28,10 +28,18 @@ class InteractionArea(QFrame):
         clicked_position = event.pos()
         if event.button() == Qt.MouseButton.LeftButton:
             clicked_circle = self.find_circle(clicked_position)
+
             if clicked_circle is not None:
                 self.get_selected(clicked_circle)
             else:
-                self.add_circle(clicked_position)
+                if len(self.visited_nodes) == 1 and not self.is_circle_too_close(clicked_position):
+                    selected_node = next(iter(self.visited_nodes))
+
+                    self.circles[selected_node] = clicked_position
+                    self.visited_nodes.clear()
+                else:
+                    self.add_circle(clicked_position)
+
             self.update()
         elif event.button() == Qt.MouseButton.RightButton:
             clicked_circle = self.find_circle(clicked_position)
@@ -128,7 +136,7 @@ class InteractionArea(QFrame):
     def is_circle_too_close(self, position):
         for circle_center in self.circles.values():
             distance = (circle_center - position).manhattanLength()
-            if distance < 60:
+            if distance < 100:
                 return True
         return False
 
