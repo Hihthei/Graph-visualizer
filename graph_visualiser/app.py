@@ -9,7 +9,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Graph visualizer")
-        self.setGeometry(100, 100, 700, 700)
+        self.setFixedSize(700, 700)
 
         container = QWidget()
         self.setCentralWidget(container)
@@ -22,13 +22,13 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.interaction_area, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.method_combo_box = QComboBox()
-        self.method_combo_box.addItems(["bfs", "dfs"])
+        self.method_combo_box.addItems(["generate graph", "bfs", "dfs"])
         main_layout.addWidget(self.method_combo_box, alignment=Qt.AlignmentFlag.AlignCenter)
 
         buttons_layout = QHBoxLayout()
 
         self.run_button = QPushButton("Run")
-        self.run_button.clicked.connect(self.run_algorithm)
+        (self.run_button.clicked.connect(self.run_algorithm))
         buttons_layout.addWidget(self.run_button)
 
         self.clear_button = QPushButton("Clear")
@@ -44,7 +44,24 @@ class MainWindow(QMainWindow):
         container.setLayout(main_layout)
 
     def run_algorithm(self):
-        pass
+        selected_method = self.method_combo_box.currentText()
+
+        if selected_method == "generate graph":
+            self.interaction_area.graph_visualizer()
+
+        else:
+            graph = self.interaction_area.graph
+
+            start_node = self.interaction_area.selected_circle if self.interaction_area.selected_circle is not None else 0
+
+            if selected_method == "bfs":
+                if graph.has_node(start_node):
+                    bfs_result = graph.bfs(start_node)
+                    print("BFS result:", bfs_result)
+            elif selected_method == "dfs":
+                if graph.has_node(start_node):
+                    dfs_result = graph.dfs(start_node)
+                    print("DFS result:", dfs_result)
 
     def clear_display(self):
         self.interaction_area.clear_circles()

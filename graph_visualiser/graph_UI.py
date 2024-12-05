@@ -1,13 +1,15 @@
 from PyQt6.QtWidgets import QFrame
 from PyQt6.QtGui import QColor, QPainter, QMouseEvent
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QPoint
 
 from graph import GraphNetX
+
+import random
 
 class InteractionArea(QFrame):
     def __init__(self):
         super().__init__()
-        self.circles = []
+        self.circles = {}
         self.lines = []
         self.selected_circle = None
         self.graph = GraphNetX()
@@ -47,44 +49,43 @@ class InteractionArea(QFrame):
         if (start_circle, end_circle) in self.lines or (end_circle, start_circle) in self.lines:
             self.lines = [
                 line for line in self.lines
-                if  line != (start_circle, end_circle)
-                and line != (end_circle, start_circle)
+                if line != (start_circle, end_circle) and line != (end_circle, start_circle)
             ]
-            self.graph.del_edge(self.circles.index(start_circle), self.circles.index(end_circle))
+            self.graph.del_edge(start_circle, end_circle)
         else:
             self.lines.append((start_circle, end_circle))
-            self.graph.add_edge(self.circles.index(start_circle), self.circles.index(end_circle))
+            self.graph.add_edge(start_circle, end_circle)
 
     def add_circle(self, position):
         if not self.is_circle_too_close(position):
-            self.circles.append(position)
-            self.graph.add_node(len(self.circles) - 1)
+            node_id = len(self.circles)
+            self.circles[node_id] = position
+            self.graph.add_node(node_id)
 
-    def remove_circle(self, circle):
-        index = self.circles.index(circle)
-        self.circles.remove(circle)
-        self.lines = [line for line in self.lines if circle not in line]
-        self.graph.del_node(index)
+    def remove_circle(self, node_id):
+        if node_id in self.circles:
+            del self.circles[node_id]
+            self.lines = [line for line in self.lines if node_id not in line]
+            self.graph.del_node(node_id)
 
-        for line in list(self.lines):
-            start, end = line
-            if circle == start or circle == end:
-                self.lines.remove(line)
-                self.graph.del_edge(self.circles.index(start), self.circles.index(end))
+            for line in list(self.lines):
+                start, end = line
+                if node_id == start or node_id == end:
+                    self.lines.remove(line)
+                    self.graph.del_edge(start, end)
 
-        if self.selected_circle == circle:
-            self.selected_circle = None
+            if self.selected_circle == node_id:
+                self.selected_circle = None
 
     def find_circle(self, position):
-        for circle_center in self.circles:
+        for node_id, circle_center in self.circles.items():
             distance = (circle_center - position).manhattanLength()
             if distance <= 30:
-                return circle_center
-
+                return node_id
         return None
 
     def is_circle_too_close(self, position):
-        for circle_center in self.circles:
+        for circle_center in self.circles.values():
             distance = (circle_center - position).manhattanLength()
             if distance < 50:
                 return True
@@ -95,8 +96,8 @@ class InteractionArea(QFrame):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        for circle_center in self.circles:
-            if circle_center == self.selected_circle:
+        for node_id, circle_center in self.circles.items():
+            if node_id == self.selected_circle:
                 painter.setBrush(QColor("yellow"))
             else:
                 painter.setBrush(QColor("green"))
@@ -104,11 +105,30 @@ class InteractionArea(QFrame):
 
         painter.setPen(QColor("black"))
         for start, end in self.lines:
-            painter.drawLine(start, end)
+            painter.drawLine(self.circles[start], self.circles[end])
+
+    def generate_position(self):
+        x = random.randint(50, self.width() - 50)
+        y = random.randint(50, self.height() - 50)
+
+        return QPoint(x, y)
+
+    def graph_visualizer(self):
+        self.clear_circles()
+
+        self.graph.generate_graph()
+
+        for node in self.graph.get_nodes():
+            self.circles[node] = self.generate_position()
+
+        for start, end in self.graph.get_edges():
+            self.lines.append((start, end))
+
+        self.update()
 
     def clear_circles(self):
-        self.circles = []
-        self.lines = []
+        self.circles.clear()
+        self.lines.clear()
         self.selected_circle = None
         self.graph.clear_graph()
         self.update()
