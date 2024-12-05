@@ -43,15 +43,8 @@ class GraphNetX:
 
     def generate_graph(self):
         self.graph.clear()
-        while True:
-            grph = nx.gnm_random_graph(n=10, m=15)
-            if nx.is_connected(grph):
-                for node in grph.nodes():
-                    self.graph.add_node(node)
-                for edge in grph.edges():
-                    self.graph.add_edge(edge[0], edge[1])
+        self.graph = nx.gnm_random_graph(n=10, m=0)
 
-                break
 
     def bfs(self, start_node):
         visited = set()
