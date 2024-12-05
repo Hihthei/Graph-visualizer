@@ -183,7 +183,7 @@ class InteractionArea(QFrame):
     def full_link_selected_nodes(self):
         if len(self.visited_nodes) > 1:
             nodes = list(self.visited_nodes)
-            self.clear_edges(nodes)
+            self.clear_edges_from(nodes)
 
             for i in range(len(nodes)):
                 for j in range(i + 1, len(nodes)):
@@ -196,7 +196,7 @@ class InteractionArea(QFrame):
     def random_link_selected_nodes(self):
         if len(self.visited_nodes) > 1:
             nodes = list(self.visited_nodes)
-            self.clear_edges(nodes)
+            self.clear_edges_from(nodes)
 
             random.shuffle(nodes)
 
@@ -241,13 +241,18 @@ class InteractionArea(QFrame):
         self.visited_nodes.clear()
         self.update()
 
-    def clear_edges(self, nodes):
+    def clear_edges_from(self, nodes):
         for node in nodes:
             for line in list(self.lines):
                 start, end = line
                 if node == start or node == end:
                     self.lines.remove(line)
                     self.graph.del_edge(start, end)
+
+    def clear_edges(self):
+        self.lines.clear()
+        self.graph.clear_edges()
+        self.update()
 
     def generate_position(self):
         x = random.randint(50, self.width() - 50)

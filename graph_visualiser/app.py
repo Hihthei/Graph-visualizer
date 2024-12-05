@@ -35,6 +35,10 @@ class MainWindow(QMainWindow):
         self.clear_button.clicked.connect(self.clear_display)
         buttons_layout.addWidget(self.clear_button)
 
+        self.clear_edges_button = QPushButton("Clear Edges")
+        self.clear_edges_button.clicked.connect(self.interaction_area.clear_edges)
+        buttons_layout.addWidget(self.clear_edges_button)
+
         self.quit_button = QPushButton("Quit")
         self.quit_button.clicked.connect(self.quit_application)
         buttons_layout.addWidget(self.quit_button)
