@@ -260,8 +260,7 @@ class InteractionArea(QFrame):
         for node in self.graph.get_nodes():
             self.circles[node] = self.generate_position()
 
-        for start, end in self.graph.get_edges():
-            self.add_edge(start, end)
+        self.random_linking_process(self.graph.get_nodes())
 
         self.update()
 
