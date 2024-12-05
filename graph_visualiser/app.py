@@ -57,11 +57,11 @@ class MainWindow(QMainWindow):
             if selected_method == "bfs":
                 if graph.has_node(start_node):
                     bfs_result = graph.bfs(start_node)
-                    print("BFS result:", bfs_result)
+                    self.interaction_area.visualize_algorithm(bfs_result)
             elif selected_method == "dfs":
                 if graph.has_node(start_node):
                     dfs_result = graph.dfs(start_node)
-                    print("DFS result:", dfs_result)
+                    self.interaction_area.visualize_algorithm(dfs_result)
 
     def clear_display(self):
         self.interaction_area.clear_circles()

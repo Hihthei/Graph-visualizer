@@ -41,7 +41,7 @@ class GraphNetX:
     def generate_graph(self):
         self.graph.clear()
         while True:
-            grph = nx.gnm_random_graph(n=15, m=20)
+            grph = nx.gnm_random_graph(n=10, m=15)
             if nx.is_connected(grph):
                 for node in grph.nodes():
                     self.graph.add_node(node)

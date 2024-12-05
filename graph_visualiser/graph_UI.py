@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QFrame
-from PyQt6.QtGui import QColor, QPainter, QMouseEvent
-from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtGui import QColor, QPainter, QMouseEvent, QPen
+from PyQt6.QtCore import Qt, QPoint, QPointF, QTimer
+
 
 from graph import GraphNetX
 
@@ -13,6 +14,12 @@ class InteractionArea(QFrame):
         self.lines = []
         self.selected_circle = None
         self.graph = GraphNetX()
+
+        self.timer = QTimer(self)
+        self.current_index = 0
+        self.nodes_order = []
+        self.visited_nodes = set()
+        self.visited_edges = set()
 
     def mousePressEvent(self, event: QMouseEvent):
         clicked_position = event.pos()
@@ -87,7 +94,7 @@ class InteractionArea(QFrame):
     def is_circle_too_close(self, position):
         for circle_center in self.circles.values():
             distance = (circle_center - position).manhattanLength()
-            if distance < 50:
+            if distance < 60:
                 return True
         return False
 
@@ -97,15 +104,39 @@ class InteractionArea(QFrame):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         for node_id, circle_center in self.circles.items():
-            if node_id == self.selected_circle:
+            if node_id in self.visited_nodes:
                 painter.setBrush(QColor("yellow"))
+            elif node_id == self.selected_circle:
+                painter.setBrush(QColor("lightblue"))
             else:
                 painter.setBrush(QColor("green"))
-            painter.drawEllipse(circle_center, 10, 10)
+            painter.drawEllipse(circle_center, 30, 30)
 
-        painter.setPen(QColor("black"))
+        pen = QPen(QColor("black"))
+        pen.setWidth(8)
+        painter.setPen(pen)
         for start, end in self.lines:
-            painter.drawLine(self.circles[start], self.circles[end])
+            if (start, end) in self.visited_edges or (end, start) in self.visited_edges:
+                pen.setColor(QColor("orange"))
+            else:
+                pen.setColor(QColor("black"))
+            painter.setPen(pen)
+            self.draw_edge(painter, start, end)
+
+    def draw_edge(self, painter, start, end):
+        start_pos = QPointF(self.circles[start])
+        end_pos = QPointF(self.circles[end])
+
+        direction = end_pos - start_pos
+        length = (direction.x() ** 2 + direction.y() ** 2) ** 0.5
+
+        if length != 0:
+            unit_direction = QPointF(direction.x() / length, direction.y() / length)
+            radius = 15
+            start_adjusted = start_pos + unit_direction * radius
+            end_adjusted = end_pos - unit_direction * radius
+
+            painter.drawLine(start_adjusted.toPoint(), end_adjusted.toPoint())
 
     def generate_position(self):
         x = random.randint(50, self.width() - 50)
@@ -124,6 +155,49 @@ class InteractionArea(QFrame):
         for start, end in self.graph.get_edges():
             self.lines.append((start, end))
 
+        self.update()
+
+    def visualize_algorithm(self, nodes_order):
+        self.current_index = 0
+        self.nodes_order = nodes_order
+        self.visited_nodes = set()
+        self.visited_edges = set()
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_node_color)
+        self.timer.start(1000)
+
+    def update_node_color(self):
+        if self.current_index < len(self.nodes_order):
+            node_id = self.nodes_order[self.current_index]
+            self.visited_nodes.add(node_id)
+
+            if self.current_index > 0:
+                prev_node_id = self.nodes_order[self.current_index - 1]
+
+                if self.graph.graph.has_edge(prev_node_id, node_id):
+                    self.visited_edges.add((prev_node_id, node_id))
+                elif self.graph.graph.has_edge(node_id, prev_node_id):
+                    self.visited_edges.add((node_id, prev_node_id))
+
+            for neighbor in self.graph.graph.neighbors(node_id):
+                if neighbor in self.visited_nodes:
+                    continue
+                if self.graph.graph.has_edge(node_id, neighbor):
+                    self.visited_edges.add((node_id, neighbor))
+                elif self.graph.graph.has_edge(neighbor, node_id):
+                    self.visited_edges.add((neighbor, node_id))
+
+            self.update()
+            self.current_index += 1
+        else:
+            self.timer.stop()
+            self.selected_circle = None
+
+            QTimer.singleShot(3000, self.reset_visualization)
+
+    def reset_visualization(self):
+        self.visited_nodes = set()
+        self.visited_edges = set()
         self.update()
 
     def clear_circles(self):
