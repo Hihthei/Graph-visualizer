@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.interaction_area, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.method_combo_box = QComboBox()
-        self.method_combo_box.addItems(["link", "generate graph", "bfs", "dfs"])
+        self.method_combo_box.addItems(["full link", "random link", "generate graph", "bfs", "dfs"])
         main_layout.addWidget(self.method_combo_box, alignment=Qt.AlignmentFlag.AlignCenter)
 
         buttons_layout = QHBoxLayout()
@@ -49,8 +49,11 @@ class MainWindow(QMainWindow):
         if selected_method == "generate graph":
             self.interaction_area.graph_visualizer()
 
-        elif selected_method == "link":
-            self.interaction_area.link_selected_nodes()
+        elif selected_method == "full link":
+            self.interaction_area.full_link_selected_nodes()
+
+        elif selected_method == "random link":
+            self.interaction_area.random_link_selected_nodes()
 
         else:
             graph = self.interaction_area.graph

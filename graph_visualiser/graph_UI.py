@@ -7,6 +7,7 @@ from graph import GraphNetX
 
 import random
 
+
 class InteractionArea(QFrame):
     def __init__(self):
         super().__init__()
@@ -26,9 +27,24 @@ class InteractionArea(QFrame):
     def mousePressEvent(self, event: QMouseEvent):
         clicked_position = event.pos()
         if event.button() == Qt.MouseButton.LeftButton:
-            self.handle_left_click(clicked_position)
+            clicked_circle = self.find_circle(clicked_position)
+            if clicked_circle is not None:
+                self.get_selected(clicked_circle)
+            else:
+                self.add_circle(clicked_position)
+            self.update()
         elif event.button() == Qt.MouseButton.RightButton:
-            self.handle_right_click(clicked_position)
+            clicked_circle = self.find_circle(clicked_position)
+            if clicked_circle is not None:
+                self.remove_circle(clicked_circle)
+            self.update()
+
+    def get_selected(self, node_id):
+        if node_id in self.visited_nodes:
+            self.visited_nodes.remove(node_id)
+        else:
+            self.visited_nodes.add(node_id)
+        self.update()
 
     def handle_left_click(self, position):
         clicked_circle = self.find_circle(position)
@@ -146,18 +162,76 @@ class InteractionArea(QFrame):
             self.update()
 
     def select_all_nodes(self):
-        self.visited_nodes = set(self.circles.keys())
+        for node_id in self.circles.keys():
+            self.get_selected(node_id)
 
-    def link_selected_nodes(self):
+    def full_link_selected_nodes(self):
         if len(self.visited_nodes) > 1:
-            # Créer des liens entre tous les nœuds sélectionnés
             nodes = list(self.visited_nodes)
+            self.clear_edges(nodes)
+
             for i in range(len(nodes)):
                 for j in range(i + 1, len(nodes)):
                     if (nodes[i], nodes[j]) not in self.lines and (nodes[j], nodes[i]) not in self.lines:
                         self.lines.append((nodes[i], nodes[j]))
                         self.graph.add_edge(nodes[i], nodes[j])
+            self.clear_selection()
+            self.update()
+
+    def random_link_selected_nodes(self):
+        if len(self.visited_nodes) > 1:
+            nodes = list(self.visited_nodes)
+            self.clear_edges(nodes)
+
+            random.shuffle(nodes)
+
+            connected_nodes = set()
+            connected_nodes.add(nodes[0])
+            edges_to_add = []
+
+            while len(connected_nodes) < len(nodes):
+                unconnected_node = random.choice([n for n in nodes if n not in connected_nodes])
+                connected_node = random.choice(list(connected_nodes))
+
+                edges_to_add.append((connected_node, unconnected_node))
+                connected_nodes.add(unconnected_node)
+
+            for start, end in edges_to_add:
+                self.lines.append((start, end))
+                self.graph.add_edge(start, end)
+
+            max_additional_links = min(len(nodes) // 2, 5)
+            added_links = 0
+
+            possible_pairs = [
+                (nodes[i], nodes[j])
+                for i in range(len(nodes))
+                for j in range(i + 1, len(nodes))
+                if (nodes[i], nodes[j]) not in self.lines and (nodes[j], nodes[i]) not in self.lines
+            ]
+
+            while added_links < max_additional_links and possible_pairs:
+                start, end = random.choice(possible_pairs)
+                self.lines.append((start, end))
+                self.graph.add_edge(start, end)
+                added_links += 1
+
+                possible_pairs.remove((start, end))
+
+            self.clear_selection()
+            self.update()
+
+    def clear_selection(self):
+        self.visited_nodes.clear()
         self.update()
+
+    def clear_edges(self, nodes):
+        for node in nodes:
+            for line in list(self.lines):
+                start, end = line
+                if node == start or node == end:
+                    self.lines.remove(line)
+                    self.graph.del_edge(start, end)
 
     def generate_position(self):
         x = random.randint(50, self.width() - 50)
