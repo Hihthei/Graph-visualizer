@@ -69,6 +69,7 @@ class GraphLogic:
         while attempts < max_attempts:
             x = random.randint(75, self.width_ - 150)
             y = random.randint(75, self.height_ - 150)
+
             new_position = QPoint(x, y)
             if not any((circle_center - new_position).manhattanLength() < spacing for circle_center in self.circles.values()):
                 return new_position
@@ -91,6 +92,10 @@ class GraphLogic:
         for node in nodes_to_remove:
             self.remove_circle(node)
 
+        nodes_to_remove = [node for node in self.circles.keys() if len([line for line in self.lines if node in line]) == 0]
+        for node in nodes_to_remove:
+            self.remove_circle(node)
+
     ''' Link edges functions '''
     def full_link_selected_nodes(self):
         if len(self.selected_circle) > 1:
@@ -104,6 +109,7 @@ class GraphLogic:
         if nodes is None:
             if len(self.selected_circle) <= 1:
                 return
+
             nodes = list(self.selected_circle)
 
         self.clear_edges_from(nodes)
