@@ -1,4 +1,8 @@
 import networkx as nx
+from collections import deque
+from random import randint
+
+from random import randint
 
 class GraphNetX:
     def __init__(self):
@@ -14,12 +18,15 @@ class GraphNetX:
     def add_edge(self, node1, node2):
         self.graph.add_edge(node1, node2)
 
+    def remove_edge(self, node1, node2):
+        self.graph.remove_edge(node1, node2)
+
     def del_edge(self, node1, node2):
         if self.graph.has_edge(node1, node2):
             self.graph.remove_edge(node1, node2)
 
     def clear_edges(self):
-        self.graph.remove_edges_from(list(self.graph.edges))
+        self.graph.remove_edges_from(self.graph.edges())
 
     def clear_graph(self):
         self.graph.clear()
@@ -43,39 +50,39 @@ class GraphNetX:
 
     def generate_graph(self):
         self.graph.clear()
-        self.graph = nx.gnm_random_graph(n=10, m=0)
-
+        self.graph = nx.gnm_random_graph(n=randint(7, 15), m=0)
 
     def bfs(self, start_node):
-        visited = set()
+        visited = {start_node}
         order = []
-        queue = [start_node]
+        parents = {start_node: None}
+        queue = deque([start_node])
 
         while queue:
-            node = queue.pop(0)
-            if node not in visited:
-                visited.add(node)
-                order.append(node)
-                queue.extend(neighbor for neighbor in self.graph.neighbors(node) if neighbor not in visited)
+            node = queue.popleft()
+            order.append(node)
 
-        return order
+            for neighbor in self.graph.neighbors(node):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    parents[neighbor] = node
+                    queue.append(neighbor)
+
+        return order, parents
 
     def dfs(self, start_node):
         visited = set()
-        return self.__dfs_recursive(start_node, visited)
+        parents = {start_node: None}
+        order = self.__dfs_recursive(start_node, visited, parents)
+        return order, parents
 
-    def __dfs_recursive(self, node, visited):
+    def __dfs_recursive(self, node, visited, parents):
         visited.add(node)
         order = [node]
 
         for neighbor in self.graph.neighbors(node):
             if neighbor not in visited:
-                order.extend(self.__dfs_recursive(neighbor, visited))
+                parents[neighbor] = node
+                order.extend(self.__dfs_recursive(neighbor, visited, parents))
 
         return order
-
-    def dijkstra(self, start_node, end_node):
-        pass
-
-    def coloration(self):
-        pass
