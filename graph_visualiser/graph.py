@@ -1,7 +1,4 @@
 import networkx as nx
-from collections import deque
-from random import randint
-
 
 class GraphNetX:
     def __init__(self):
@@ -22,7 +19,7 @@ class GraphNetX:
             self.graph.remove_edge(node1, node2)
 
     def clear_edges(self):
-        self.graph.remove_edges_from(self.graph.edges())
+        self.graph.remove_edges_from(list(self.graph.edges))
 
     def clear_graph(self):
         self.graph.clear()
@@ -46,39 +43,39 @@ class GraphNetX:
 
     def generate_graph(self):
         self.graph.clear()
-        self.graph = nx.gnm_random_graph(n=randint(7, 15), m=0)
+        self.graph = nx.gnm_random_graph(n=10, m=0)
+
 
     def bfs(self, start_node):
-        visited = {start_node}
+        visited = set()
         order = []
-        parents = {start_node: None}
-        queue = deque([start_node])
+        queue = [start_node]
 
         while queue:
-            node = queue.popleft()
-            order.append(node)
+            node = queue.pop(0)
+            if node not in visited:
+                visited.add(node)
+                order.append(node)
+                queue.extend(neighbor for neighbor in self.graph.neighbors(node) if neighbor not in visited)
 
-            for neighbor in self.graph.neighbors(node):
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    parents[neighbor] = node
-                    queue.append(neighbor)
-
-        return order, parents
+        return order
 
     def dfs(self, start_node):
         visited = set()
-        parents = {start_node: None}
-        order = self.__dfs_recursive(start_node, visited, parents)
-        return order, parents
+        return self.__dfs_recursive(start_node, visited)
 
-    def __dfs_recursive(self, node, visited, parents):
+    def __dfs_recursive(self, node, visited):
         visited.add(node)
         order = [node]
 
         for neighbor in self.graph.neighbors(node):
             if neighbor not in visited:
-                parents[neighbor] = node
-                order.extend(self.__dfs_recursive(neighbor, visited, parents))
+                order.extend(self.__dfs_recursive(neighbor, visited))
 
         return order
+
+    def dijkstra(self, start_node, end_node):
+        pass
+
+    def coloration(self):
+        pass
