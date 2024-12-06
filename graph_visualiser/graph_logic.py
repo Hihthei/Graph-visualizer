@@ -16,7 +16,7 @@ class GraphLogic(QFrame):
         self.graph = GraphNetX()
 
         self.current_index = -1
-        self.nodes_order = []
+        self.nodes_order = list()
         self.visited_nodes = set()
         self.visited_edges = set()
 
@@ -58,7 +58,7 @@ class GraphLogic(QFrame):
         attempts = 0
 
         while attempts < max_attempts:
-            x, y = random.randint(50, self.width() - 100), random.randint(50, self.height() - 100)
+            x, y = random.randint(75, self.width() - 150), random.randint(75, self.height() - 150)
             new_position = QPoint(x, y)
 
             if not any((circle_center - new_position).manhattanLength() < spacing for circle_center in
