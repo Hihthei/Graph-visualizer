@@ -22,7 +22,7 @@ class MainWindow(QtWidgets.QMainWindow):
         main_layout.addWidget(self.interaction_area, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.method_combo_box = QtWidgets.QComboBox()
-        self.method_combo_box.addItems(["full link", "random link", "generate graph", "bfs", "dfs"])
+        self.method_combo_box.addItems(["generate graph", "full link", "random link", "bfs", "dfs"])
         main_layout.addWidget(self.method_combo_box, alignment=Qt.AlignmentFlag.AlignCenter)
 
         buttons_layout = QtWidgets.QHBoxLayout()
@@ -37,7 +37,7 @@ class MainWindow(QtWidgets.QMainWindow):
         buttons_layout.addWidget(self.clear_button)
 
         self.clear_edges_button = QtWidgets.QPushButton("Clear Edges")
-        self.clear_edges_button.clicked.connect(self.interaction_area.clear_edges)
+        self.clear_edges_button.clicked.connect(self.clear_edges)
         buttons_layout.addWidget(self.clear_edges_button)
 
         self.link_nodes_switch = QtWidgets.QCheckBox("Link Nodes")
@@ -57,18 +57,23 @@ class MainWindow(QtWidgets.QMainWindow):
         selected_method = self.method_combo_box.currentText()
 
         if selected_method == "generate graph":
-            self.interaction_area.graph_visualizer()
+            self.interaction_area.graph.generate_graph()
 
         elif selected_method == "full link":
-            self.interaction_area.full_link_selected_nodes()
+            self.interaction_area.graph.full_link_selected_nodes()
 
         elif selected_method == "random link":
-            self.interaction_area.random_link_selected_nodes()
+            self.interaction_area.graph.random_link_selected_nodes()
 
         else:
-            graph = self.interaction_area.graph
+            graph = self.interaction_area.graph.graph
 
-            start_node = self.interaction_area.selected_circle if self.interaction_area.selected_circle is not None else 0
+
+            if len(self.interaction_area.graph.selected_circle) == 1:
+                start_node = list(self.interaction_area.graph.selected_circle)[0]
+
+            else :
+                start_node = 0
 
             if selected_method == "bfs":
                 if graph.has_node(start_node):
@@ -79,11 +84,19 @@ class MainWindow(QtWidgets.QMainWindow):
                     dfs_result = graph.dfs(start_node)
                     self.interaction_area.visualize_algorithm(dfs_result)
 
+        self.update()
+
     def clear_display(self):
-        self.interaction_area.clear_circles()
+        self.interaction_area.graph.clear_circles()
+        self.update()
+
+    def clear_edges(self):
+        self.interaction_area.graph.clear_edges()
+        self.update()
 
     def link_nodes(self):
-        self.interaction_area.link_nodes()
+        self.interaction_area.graph.link_nodes()
+        self.update()
 
     def quit_application(self):
         self.close()
