@@ -2,6 +2,7 @@ import networkx as nx
 from collections import deque
 from random import randint
 
+
 class GraphNetX:
     def __init__(self):
         self.graph = nx.Graph()

@@ -173,14 +173,6 @@ class GraphLogic:
         self.visited_nodes.clear()
         self.visited_edges.clear()
 
-    ''' Visualized dijsktra '''
-    def shortest_path(self, start_node, end_node):
-        pass
-
-    ''' Visualized coloration '''
-    def coloration(self):
-        pass
-
     ''' Private helpers '''
     def _generate_node_id(self):
         if not self.circles:
