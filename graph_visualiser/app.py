@@ -73,6 +73,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 start_node = list(self.interaction_area.graph.selected_circle)[0]
 
             else :
+                self.interaction_area.graph.selected_circle.clear()
                 start_node = 0
 
             if selected_method == "bfs":

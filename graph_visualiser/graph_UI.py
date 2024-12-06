@@ -12,10 +12,9 @@ class InteractionArea(QFrame):
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
         self.link_node_value = False
-
         self.parents = dict()
 
-        self.graph = GraphLogic()
+        self.graph = GraphLogic(width=600, height=400)
 
         self.timer = QTimer(self)
 
@@ -28,7 +27,6 @@ class InteractionArea(QFrame):
         clicked_position = event.pos()
         if event.button() == Qt.MouseButton.LeftButton:
             self.handle_left_click(clicked_position)
-
         elif event.button() == Qt.MouseButton.RightButton:
             self.handle_right_click(clicked_position)
 
@@ -83,13 +81,12 @@ class InteractionArea(QFrame):
         if event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_A:
             if len(self.graph.selected_circle) == len(self.graph.circles):
                 self.graph.selected_circle.clear()
-            else :
+            else:
                 self.graph.selected_circle = set(self.graph.circles.keys())
 
             self.update()
 
     ''' GUI functions '''
-
     def paintEvent(self, event):
         super().paintEvent(event)
         painter = QPainter(self)
@@ -122,7 +119,8 @@ class InteractionArea(QFrame):
     def draw_edges(self, painter):
         pen = QPen()
         pen.setWidth(8)
-        for start, end in self.graph.lines:
+
+        for (start, end) in self.graph.graph.get_edges():
             pen.setColor(
                 QColor("orange") if (start, end) in self.graph.visited_edges
                                 or (end, start) in self.graph.visited_edges
@@ -160,7 +158,6 @@ class InteractionArea(QFrame):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_node_color)
         self.timer.start(1000)
-
 
     def update_node_color(self):
         if 0 <= self.graph.current_index < len(self.graph.nodes_order):

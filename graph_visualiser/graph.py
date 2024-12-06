@@ -21,7 +21,7 @@ class GraphNetX:
             self.graph.remove_edge(node1, node2)
 
     def clear_edges(self):
-        self.graph.remove_edges_from(list(self.graph.edges))
+        self.graph.remove_edges_from(self.graph.edges())
 
     def clear_graph(self):
         self.graph.clear()
@@ -81,9 +81,3 @@ class GraphNetX:
                 order.extend(self.__dfs_recursive(neighbor, visited, parents))
 
         return order
-
-    def dijkstra(self, start_node, end_node):
-        pass
-
-    def coloration(self):
-        pass
