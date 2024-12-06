@@ -1,5 +1,7 @@
 import networkx as nx
 
+from random import randint
+
 class GraphNetX:
     def __init__(self):
         self.graph = nx.Graph()
@@ -43,7 +45,7 @@ class GraphNetX:
 
     def generate_graph(self):
         self.graph.clear()
-        self.graph = nx.gnm_random_graph(n=10, m=0)
+        self.graph = nx.gnm_random_graph(n=randint(7, 15), m=0)
 
 
     def bfs(self, start_node):

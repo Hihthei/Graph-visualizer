@@ -58,7 +58,7 @@ class GraphLogic(QFrame):
         attempts = 0
 
         while attempts < max_attempts:
-            x, y = random.randint(50, self.width() - 50), random.randint(50, self.height() - 50)
+            x, y = random.randint(50, self.width() - 100), random.randint(50, self.height() - 100)
             new_position = QPoint(x, y)
 
             if not any((circle_center - new_position).manhattanLength() < spacing for circle_center in
@@ -79,6 +79,10 @@ class GraphLogic(QFrame):
 
         self.random_linking_process(list(self.circles.keys()))
 
+        nodes_to_remove = [node for node in self.circles.keys() if len([line for line in self.lines if node in line]) == 0]
+        for node in nodes_to_remove:
+            self.remove_circle(node)
+
     ''' Link edges functions '''
     def full_link_selected_nodes(self):
         if len(self.selected_circle) > 1:
@@ -87,8 +91,6 @@ class GraphLogic(QFrame):
             for i in range(len(nodes)):
                 for j in range(i + 1, len(nodes)):
                     self.add_edge(nodes[i], nodes[j])
-
-            self.selected_circle.clear()
 
     def random_link_selected_nodes(self):
         if len(self.selected_circle) > 1:
