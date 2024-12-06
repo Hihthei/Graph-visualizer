@@ -68,7 +68,10 @@ class InteractionArea(QFrame):
                     self.graph.selected_circle.add(end_node)
 
             elif end_node is not None and end_node != self.edge_start_node:
-                self.graph.add_edge(self.edge_start_node, end_node)
+                if self.graph.graph.has_edge(self.edge_start_node, end_node):
+                    self.graph.remove_edge(self.edge_start_node, end_node)
+                else :
+                    self.graph.add_edge(self.edge_start_node, end_node)
 
             self.is_drawing_edge = False
             self.edge_start_node = None

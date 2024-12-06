@@ -18,6 +18,9 @@ class GraphNetX:
     def add_edge(self, node1, node2):
         self.graph.add_edge(node1, node2)
 
+    def remove_edge(self, node1, node2):
+        self.graph.remove_edge(node1, node2)
+
     def del_edge(self, node1, node2):
         if self.graph.has_edge(node1, node2):
             self.graph.remove_edge(node1, node2)

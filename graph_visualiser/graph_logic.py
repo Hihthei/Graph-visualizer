@@ -8,6 +8,8 @@ MIN_SPACING = 100
 EDGE_MAX = 3
 INTERPOLATION_STEPS = 100
 INTERPOLATION_RADIUS = 40
+MIN_X = 40
+MIN_Y = 40
 DEFAULT_WIDTH = 600
 DEFAULT_HEIGHT = 400
 
@@ -46,6 +48,10 @@ class GraphLogic:
         if not self.graph.has_edge(start, end):
             self.graph.add_edge(start, end)
 
+    def remove_edge(self, start, end):
+        if self.graph.has_edge(start, end):
+            self.graph.remove_edge(start, end)
+
     def remove_circle(self, node_id):
         if node_id in self.circles:
             del self.circles[node_id]
@@ -59,6 +65,9 @@ class GraphLogic:
         return None
 
     def is_circle_too_close(self, position):
+        if not (MIN_X <= position.x() <= self.width_ - MIN_X) or not (MIN_Y <= position.y() <= self.height_ - MIN_Y):
+            return True
+
         return any((circle_center - position).manhattanLength() < MIN_SPACING for circle_center in self.circles.values())
 
     def generate_position(self):
@@ -67,24 +76,34 @@ class GraphLogic:
         attempts = 0
 
         while attempts < max_attempts:
-            x = random.randint(75, self.width_ - 150)
-            y = random.randint(75, self.height_ - 150)
+            x = random.randint(MIN_X, self.width_ - MIN_X)
+            y = random.randint(MIN_Y, self.height_ - MIN_Y)
 
             new_position = QPoint(x, y)
-            if not any((circle_center - new_position).manhattanLength() < spacing for circle_center in self.circles.values()):
+            if not any((circle_center - new_position).manhattanLength() < spacing
+                       for circle_center in self.circles.values()):
                 return new_position
             attempts += 1
 
-        index = len(self.circles)
-        cols = max(1, self.width_ // spacing)
-        return QPoint(spacing * (index % cols), spacing * (index // cols))
+        for y in range(MIN_X, self.height_ - MIN_X, spacing):
+            for x in range(MIN_Y, self.width_ - MIN_Y, spacing):
+                scan_position = QPoint(x, y)
+                if not any((circle_center - scan_position).manhattanLength() < spacing
+                           for circle_center in self.circles.values()):
+                    return scan_position
+
+        return None
 
     def generate_graph(self):
         self.clear_circles()
         self.graph.generate_graph()
 
         for node in self.graph.get_nodes():
-            self.circles[node] = self.generate_position()
+            position = self.generate_position()
+            if position is not None:
+                self.circles[node] = position
+            else:
+                continue
 
         self.random_link_selected_nodes(nodes=list(self.circles.keys()))
 
@@ -92,7 +111,7 @@ class GraphLogic:
         for node in nodes_to_remove:
             self.remove_circle(node)
 
-        nodes_to_remove = [node for node in self.circles.keys() if len([line for line in self.lines if node in line]) == 0]
+        nodes_to_remove = [node for node in self.circles.keys() if self._degree(node) == 0]
         for node in nodes_to_remove:
             self.remove_circle(node)
 
