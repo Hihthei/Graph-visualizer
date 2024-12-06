@@ -29,7 +29,7 @@ class MainWindow(QtWidgets.QMainWindow):
         switchs_layout = QtWidgets.QHBoxLayout()
 
         self.run_button = QtWidgets.QPushButton("Run")
-        (self.run_button.clicked.connect(self.run_algorithm))
+        self.run_button.clicked.connect(self.run_algorithm)
         buttons_layout.addWidget(self.run_button)
 
         self.clear_button = QtWidgets.QPushButton("Clear")
@@ -73,15 +73,17 @@ class MainWindow(QtWidgets.QMainWindow):
                 start_node = list(self.interaction_area.graph.selected_circle)[0]
 
             else :
+                self.interaction_area.graph.selected_circle.clear()
                 start_node = 0
 
             if selected_method == "bfs":
                 if graph.has_node(start_node):
-                    bfs_result = graph.bfs(start_node)
+                    bfs_result, self.interaction_area.parents = graph.bfs(start_node)
                     self.interaction_area.visualize_algorithm(bfs_result)
+
             elif selected_method == "dfs":
                 if graph.has_node(start_node):
-                    dfs_result = graph.dfs(start_node)
+                    dfs_result, self.interaction_area.parents = graph.dfs(start_node)
                     self.interaction_area.visualize_algorithm(dfs_result)
 
         self.update()
