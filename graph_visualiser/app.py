@@ -6,13 +6,13 @@ from graph_UI import InteractionArea
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    """ Main window for the Graph Visualizer application. """
+    """ Main window for the Graph Visualizer application """
 
     def __init__(self):
         """
-        Initialize the main window with UI components.
+        Initialize the main window with UI components
 
-        Sets up the interaction area, buttons, and menu options for the user interface.
+        Sets up the interaction area, buttons, and menu options for the user interface
         """
         super().__init__()
         self.setWindowTitle("Graph visualizer")
@@ -62,7 +62,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def run_algorithm(self):
         """
-        Run the selected algorithm or graph operation.
+        Run the selected algorithm or graph operation
 
         Executes the operation selected from the dropdown menu:
             generate graph,
@@ -105,22 +105,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update()
 
     def clear_display(self):
-        """ Clear all nodes and edges from the graph. """
+        """ Clear all nodes and edges from the graph """
         self.interaction_area.graph.clear_circles()
         self.update()
 
     def clear_edges(self):
-        """ Clear all edges from the graph without removing nodes. """
+        """ Clear all edges from the graph without removing nodes """
         self.interaction_area.graph.clear_edges()
         self.update()
 
     def link_nodes(self):
-        """ Enables or disables automatic linking of nodes when they are added to the graph. """
+        """ Enables or disables automatic linking of nodes when they are added to the graph """
         self.interaction_area.graph.link_nodes()
         self.update()
 
     def quit_application(self):
-        """ Close the application. """
+        """ Close the application """
         self.close()
 
 

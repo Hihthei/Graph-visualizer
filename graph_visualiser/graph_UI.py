@@ -6,12 +6,12 @@ from graph_logic import GraphLogic
 
 
 class InteractionArea(QFrame):
-    """ Interaction area for managing and visualizing graph operations. """
+    """ Interaction area for managing and visualizing graph operations """
     def __init__(self):
         """
-        Initialize the interaction area.
+        Initialize the interaction area
 
-        Sets up the graph logic, user interactions, and rendering settings.
+        Sets up the graph logic, user interactions, and rendering settings
         """
         super().__init__()
 
@@ -31,9 +31,9 @@ class InteractionArea(QFrame):
     """ Mouse Event functions """
     def mousePressEvent(self, event: QMouseEvent):
         """
-        Handle mouse press events.
+        Handle mouse press events
 
-        Detects left or right clicks to add, remove, or start linking nodes.
+        Detects left or right clicks to add, remove, or start linking nodes
 
         params:
             event: QMouseEvent containing click details
@@ -48,9 +48,9 @@ class InteractionArea(QFrame):
 
     def handle_left_click(self, position):
         """
-        Handle left-click events for adding or linking nodes.
+        Handle left-click events for adding or linking nodes
 
-        If a node is clicked, start linking. Otherwise, add a new node.
+        If a node is clicked, start linking. Otherwise, add a new node
 
         params:
             position: QPoint of the click position
@@ -69,9 +69,9 @@ class InteractionArea(QFrame):
 
     def handle_right_click(self, position):
         """
-        Handle right-click events to remove nodes.
+        Handle right-click events to remove nodes
 
-        Removes the node at the clicked position if it exists.
+        Removes the node at the clicked position if it exists
 
         params:
             position: QPoint of the click position
@@ -84,9 +84,9 @@ class InteractionArea(QFrame):
 
     def mouseMoveEvent(self, event: QMouseEvent):
         """
-        Handle mouse move events for dynamic edge drawing.
+        Handle mouse move events for dynamic edge drawing
 
-        Updates the temporary edge position while dragging the mouse.
+        Updates the temporary edge position while dragging the mouse
 
         params:
             event: QMouseEvent containing the current mouse position
@@ -97,9 +97,9 @@ class InteractionArea(QFrame):
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         """
-        Handle mouse release events to finalize node selection or edge creation.
+        Handle mouse release events to finalize node selection or edge creation
 
-        Creates or removes an edge between nodes, or toggles selection for a single node.
+        Creates or removes an edge between nodes, or toggles selection for a single node
 
         params:
             event: QMouseEvent containing the release position
@@ -128,9 +128,9 @@ class InteractionArea(QFrame):
     """ Keyboard Event functions """
     def keyPressEvent(self, event: QKeyEvent):
         """
-        Handle key press events for graph selection.
+        Handle key press events for graph selection
 
-        Allows selecting or deselecting all nodes with Ctrl + A.
+        Allows selecting or deselecting all nodes with Ctrl + A
 
         params:
             event: QKeyEvent containing key press details
@@ -146,9 +146,9 @@ class InteractionArea(QFrame):
     """ GUI function """
     def paintEvent(self, event):
         """
-        Paint the graph elements.
+        Paint the graph elements
 
-        Renders nodes, edges, and any temporary edges being drawn.
+        Renders nodes, edges, and any temporary edges being drawn
 
         params:
             event: the paint event triggering the update
@@ -163,9 +163,9 @@ class InteractionArea(QFrame):
 
     def draw_nodes(self, painter):
         """
-        Draw all nodes in the graph.
+        Draw all nodes in the graph
 
-        Colors nodes based on their state: current, visited, selected, or default.
+        Colors nodes based on their state: current, visited, selected, or default
 
         params:
             painter: QPainter used for drawing
@@ -191,9 +191,9 @@ class InteractionArea(QFrame):
 
     def draw_edges(self, painter):
         """
-        Draw all edges in the graph.
+        Draw all edges in the graph
 
-        Colors edges orange if visited, black otherwise.
+        Colors edges orange if visited, black otherwise
 
         params:
             painter: QPainter used for drawing
@@ -213,14 +213,14 @@ class InteractionArea(QFrame):
 
     def draw_edge(self, painter, start, end):
         """
-        Draw a single edge between two nodes.
+        Draw a single edge between two nodes
 
-        Adjusts edge endpoints to avoid overlapping with node boundaries.
+        Adjusts edge endpoints to avoid overlapping with node boundaries
 
         params:
             painter: QPainter used for drawing
-            start: the starting node ID
-            end: the ending node ID
+            start: the index of the starting node
+            end: the index of the ending node
         """
         start_pos = self.graph.circles[start]
         end_pos = self.graph.circles[end]
@@ -234,9 +234,9 @@ class InteractionArea(QFrame):
 
     def draw_temporary_edge(self, painter):
         """
-        Draw a temporary edge while linking nodes.
+        Draw a temporary edge while linking nodes
 
-        Visualizes the edge being drawn dynamically as the user drags the mouse.
+        Visualizes the edge being drawn dynamically as the user drags the mouse
 
         params:
             painter: QPainter used for drawing
@@ -249,9 +249,9 @@ class InteractionArea(QFrame):
     """ Algorithm visualizer functions """
     def visualize_algorithm(self, nodes_order):
         """
-        Visualize the execution of a graph traversal algorithm.
+        Visualize the execution of a graph traversal algorithm
 
-        Highlights nodes and edges step-by-step based on the provided traversal order.
+        Highlights nodes and edges step-by-step based on the provided traversal order
 
         params:
             nodes_order: list of node IDs representing the traversal order
@@ -268,11 +268,11 @@ class InteractionArea(QFrame):
 
     def update_node_color(self):
         """
-        Update the color of the currently visited node and its connecting edge.
+        Update the color of the currently visited node and its connecting edge
 
-        Highlights the current node as visited and colors the edge connecting it to its parent.
-        Increments the traversal index to move to the next node in the traversal order.
-        Stops the visualization once all nodes are visited.
+        Highlights the current node as visited and colors the edge connecting it to its parent
+        Increments the traversal index to move to the next node in the traversal order
+        Stops the visualization once all nodes are visited
         """
         if 0 <= self.graph.current_index < len(self.graph.nodes_order):
             node_id = self.graph.nodes_order[self.graph.current_index]
@@ -290,10 +290,10 @@ class InteractionArea(QFrame):
 
     def reset_visualization(self):
         """
-        Reset the graph visualization state.
+        Reset the graph visualization state
 
         Clears all visual and logical states associated with the traversal, including visited nodes,
-        visited edges, and the traversal index. Restores the graph to its default state.
+        visited edges, and the traversal index. Restores the graph to its default state
         """
         self.timer.stop()
         self.graph.current_index = -1

@@ -18,7 +18,7 @@ class GraphLogic:
     """ Logic for managing graph nodes, edges, and algorithms. """
     def __init__(self, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT):
         """
-        Initialize the graph logic.
+        Initialize the graph logic
 
         params:
             width: the width of the interaction area
@@ -41,7 +41,7 @@ class GraphLogic:
     """ Graph logic functions """
     def add_circle(self, position):
         """
-        Add a node to the graph at the given position if it is valid.
+        Add a node to the graph at the given position if it is valid
 
         params:
             position: QPoint representing the position of the node
@@ -53,58 +53,58 @@ class GraphLogic:
 
     def link_new_circle(self):
         """
-        Automatically link the last two nodes added to the graph.
+        Automatically link the last two nodes added to the graph
 
-        This function works only if the linking mode is enabled.
+        This function works only if the linking mode is enabled
         """
         if self.link_node_value and len(self.circles) > 1:
             nodes = sorted(self.circles.keys())
             if len(nodes) >= 2:
-                start, end = nodes[-2], nodes[-1]
-                self.add_edge(start, end)
+                node1, node2 = nodes[-2], nodes[-1]
+                self.add_edge(node1, node2)
 
-    def add_edge(self, start, end):
+    def add_edge(self, node1, node2):
         """
-        Add an edge between two nodes if it does not already exist.
-
-        params:
-            start: the ID of the starting node
-            end: the ID of the ending node
-        """
-        if not self.graph.has_edge(start, end):
-            self.graph.add_edge(start, end)
-
-    def remove_edge(self, start, end):
-        """
-        Remove an edge between two nodes if it exists.
+        Add an edge between two nodes
 
         params:
-            start: the ID of the starting node
-            end: the ID of the ending node
+            node1: the index of the first node
+            node2: the index of the second node
         """
-        if self.graph.has_edge(start, end):
-            self.graph.remove_edge(start, end)
+        if not self.graph.has_edge(node1, node2):
+            self.graph.add_edge(node1, node2)
 
-    def remove_circle(self, node_id):
+    def remove_edge(self, node1, node2):
         """
-        Remove a node and all its associated edges from the graph.
+        Remove an edge between two nodes
 
         params:
-            node_id: the ID of the node to remove
+            node1: the index of the first node
+            node2: the index of the second node
         """
-        if node_id in self.circles:
-            del self.circles[node_id]
-            self.graph.del_node(node_id)
-            self.selected_circle.discard(node_id)
+        if self.graph.has_edge(node1, node2):
+            self.graph.remove_edge(node1, node2)
+
+    def remove_circle(self, node):
+        """
+        Remove a circle and all its associated edges from the UI
+
+        params:
+            node: the index of the node
+        """
+        if node in self.circles:
+            del self.circles[node]
+            self.graph.del_node(node)
+            self.selected_circle.discard(node)
 
     def find_circle(self, position):
         """
-        Find the node at a given position.
+        Find the circle at a given position
 
         params:
             position: QPoint representing the position to check
         returns:
-            the ID of the node if found, otherwise None
+            the index of the node if found, otherwise None
         """
         for node_id, circle_center in self.circles.items():
             if (circle_center - position).manhattanLength() <= NODE_RADIUS:
@@ -113,7 +113,7 @@ class GraphLogic:
 
     def is_circle_too_close(self, position):
         """
-        Check if a position is too close to existing nodes or out of bounds.
+        Check if a position is too close to existing circles or out of bounds
 
         params:
             position: QPoint representing the position to check
@@ -127,16 +127,17 @@ class GraphLogic:
 
     def generate_position(self):
         """
-        Generate a valid random position for a new node.
+        Generate a valid random position for a new node
 
         Algorithm:
-            - Attempt to randomly generate positions within the defined bounds (MIN_X, MIN_Y to width_ - MIN_X, height_ - MIN_Y).
-            - For each randomly generated position, check that it maintains the minimum spacing (MIN_SPACING) from existing nodes.
-            - If no valid random position is found after a number of attempts (max_attempts), fallback to scanning the grid in steps of MIN_SPACING.
-            - Return the first valid position or None if no position is found.
+            - Attempt to randomly generate positions within the defined bounds
+            - For each randomly generated position, check that it maintains the minimum spacing from existing nodes
+            - If no valid random position is found after a number of attempts,
+            fallback to scanning the grid step by step
+            - Return the first valid position or None if no position is found
 
         returns:
-            a QPoint representing the generated position, or None if no position is valid
+            QPoint representing the generated position, or None if no position is valid
         """
         spacing = MIN_SPACING
         max_attempts = 500
@@ -162,11 +163,7 @@ class GraphLogic:
         return None
 
     def generate_graph(self):
-        """
-        Generate a random graph by adding nodes and linking them.
-
-        Ensures all nodes are connected to at least one other node.
-        """
+        """ Generate a random graph by adding nodes and linking them """
         self.clear_circles()
         self.graph.generate_graph()
 
@@ -189,11 +186,7 @@ class GraphLogic:
 
     """ Link edges functions """
     def full_link_selected_nodes(self):
-        """
-        Link all selected nodes to one another.
-
-        Ensures that all selected nodes form a fully connected subgraph.
-        """
+        """ Link all selected nodes to others """
         if len(self.selected_circle) > 1:
             nodes = list(self.selected_circle)
             self.clear_edges_from(nodes)
@@ -203,10 +196,21 @@ class GraphLogic:
 
     def random_link_selected_nodes(self, nodes=None):
         """
-        Create random links between the selected nodes.
+        Create random links between the selected nodes
+
+        Algorithm:
+            - Create an adjacency map to track existing connections for each node
+            - For each node in the list:
+                - Check the current degree of the node.
+                If it has reached the maximum allowed degree, skip it
+                - Identify potential nodes to link that are not already connected,
+                ensuring they also meet the degree constraint and do not create overlapping edges
+                - Shuffle the list of possible nodes to randomize connections
+                - Add edges up to the maximum allowed degree for the current node
+            - synchronize the adjacency map
 
         params:
-            nodes: list of node IDs to link randomly (optional, uses selected nodes if None)
+            nodes: list of node to link randomly
         """
         if nodes is None:
             if len(self.selected_circle) <= 1:
@@ -218,21 +222,7 @@ class GraphLogic:
         self.random_linking_process(nodes)
 
     def random_linking_process(self, nodes):
-        """
-        Randomly link nodes, ensuring constraints like maximum degree and valid edges.
-
-        Algorithm:
-            - Create an adjacency map to track existing connections for each node.
-            - For each node in the list:
-                - Check the current degree of the node. If it has reached the maximum allowed degree (EDGE_MAX), skip it.
-                - Identify potential nodes to link that are not already connected, ensuring they also meet the degree constraint and do not create overlapping edges.
-                - Shuffle the list of possible nodes to randomize connections.
-                - Add edges up to the maximum allowed degree for the current node.
-            - Ensure that the adjacency map remains synchronized after each addition.
-
-        params:
-            nodes: list of node IDs to link randomly
-        """
+        """ Randomly link nodes """
         adjacency = self._build_adjacency()
 
         for node in nodes:
@@ -255,11 +245,11 @@ class GraphLogic:
 
     def is_node_on_line_with_radius(self, start_node, end_node):
         """
-        Check if a node lies within a certain radius of the line between two nodes.
+        Check if a node lies within a certain radius of the line between two nodes
 
         params:
-            start_node: the ID of the starting node
-            end_node: the ID of the ending node
+            start_node: the index of the starting node
+            end_node: the index of the ending node
         returns:
             True if a node lies on the line, False otherwise
         """
@@ -280,16 +270,16 @@ class GraphLogic:
         return False
 
     def link_nodes(self):
-        """ Toggle automatic linking mode. """
+        """ Toggle automatic linking mode """
         self.link_node_value = not self.link_node_value
 
     """ Clear functions """
     def clear_edges_from(self, nodes):
         """
-        Remove all edges connected to the specified nodes.
+        Remove all edges connected to the specified nodes
 
         params:
-            nodes: list of node IDs whose edges should be removed
+            nodes: list of node whose edges should be removed
         """
         edges_to_remove = []
         for (u, v) in self.graph.get_edges():
@@ -300,11 +290,11 @@ class GraphLogic:
             self.graph.remove_edge(u, v)
 
     def clear_edges(self):
-        """ Clear all edges from the graph. """
+        """ Clear all edges from the graph """
         self.graph.clear_edges()
 
     def clear_circles(self):
-        """ Clear all edges from the graph. """
+        """ Clear all circles from the graph """
         self.circles.clear()
         self.selected_circle.clear()
         self.graph.clear_graph()
@@ -317,30 +307,35 @@ class GraphLogic:
     """ Visualized Dijsktra """
     def shortest_path(self, start_node, end_node):
         """
-        Find and visualize the shortest path between two nodes using Dijkstra's algorithm.
+        Find and visualize the shortest path between two nodes using Dijkstra's algorithm
+
+        Algorithm:
+            _
 
         params:
-            start_node: the ID of the starting node
-            end_node: the ID of the ending node
+            start_node: the index of the starting node
+            end_node: the index of the ending node
         """
         pass
 
     """ Visualized coloration """
     def coloration(self):
         """
-        Perform and visualize a graph coloring algorithm.
+        Perform and visualize a graph coloring algorithm
+        Assigns colors to nodes such that no two adjacent nodes share the same color
 
-        Assigns colors to nodes such that no two adjacent nodes share the same color.
+        Algorithm:
+            _
         """
         pass
 
     """ Private helpers """
     def _generate_node_id(self):
         """
-        Generate a unique ID for a new node.
+        Generate a unique index for a new node
 
         returns:
-            the next available integer ID for a node
+            the next available integer index for a node
         """
         if not self.circles:
             return 0
@@ -348,12 +343,12 @@ class GraphLogic:
 
     def _degree(self, node):
         """
-        Calculate the degree of a node in the graph.
+        Calculate the degree of a node in the graph
 
         params:
-            node: the ID of the node
+            node: the index of the node
         returns:
-            the degree (number of edges) of the node
+            the degree of the node
         """
         deg = 0
         for (u, v) in self.graph.get_edges():
@@ -363,7 +358,7 @@ class GraphLogic:
 
     def _build_adjacency(self):
         """
-        Build an adjacency map of the graph.
+        Build an adjacency map of the graph
 
         returns:
             a dictionary where keys are node IDs and values are sets of adjacent node IDs
