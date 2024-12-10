@@ -6,7 +6,14 @@ from graph_UI import InteractionArea
 
 
 class MainWindow(QtWidgets.QMainWindow):
+    """ Main window for the Graph Visualizer application. """
+
     def __init__(self):
+        """
+        Initialize the main window with UI components.
+
+        Sets up the interaction area, buttons, and menu options for the user interface.
+        """
         super().__init__()
         self.setWindowTitle("Graph visualizer")
         self.setFixedSize(700, 700)
@@ -26,7 +33,7 @@ class MainWindow(QtWidgets.QMainWindow):
         main_layout.addWidget(self.method_combo_box, alignment=Qt.AlignmentFlag.AlignCenter)
 
         buttons_layout = QtWidgets.QHBoxLayout()
-        switchs_layout = QtWidgets.QHBoxLayout()
+        switch_layout = QtWidgets.QHBoxLayout()
 
         self.run_button = QtWidgets.QPushButton("Run")
         self.run_button.clicked.connect(self.run_algorithm)
@@ -42,18 +49,28 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.link_nodes_switch = QtWidgets.QCheckBox("Link Nodes")
         self.link_nodes_switch.stateChanged.connect(self.link_nodes)
-        switchs_layout.addWidget(self.link_nodes_switch)
+        switch_layout.addWidget(self.link_nodes_switch)
 
         self.quit_button = QtWidgets.QPushButton("Quit")
         self.quit_button.clicked.connect(self.quit_application)
         buttons_layout.addWidget(self.quit_button)
 
-        main_layout.addLayout(switchs_layout)
+        main_layout.addLayout(switch_layout)
         main_layout.addLayout(buttons_layout)
 
         container.setLayout(main_layout)
 
     def run_algorithm(self):
+        """
+        Run the selected algorithm or graph operation.
+
+        Executes the operation selected from the dropdown menu:
+            generate graph,
+            full link,
+            random link,
+            bfs,
+            dfs
+        """
         selected_method = self.method_combo_box.currentText()
 
         if selected_method == "generate graph":
@@ -68,11 +85,10 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             graph = self.interaction_area.graph.graph
 
-
             if len(self.interaction_area.graph.selected_circle) == 1:
                 start_node = list(self.interaction_area.graph.selected_circle)[0]
 
-            else :
+            else:
                 self.interaction_area.graph.selected_circle.clear()
                 start_node = 0
 
@@ -89,18 +105,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update()
 
     def clear_display(self):
+        """ Clear all nodes and edges from the graph. """
         self.interaction_area.graph.clear_circles()
         self.update()
 
     def clear_edges(self):
+        """ Clear all edges from the graph without removing nodes. """
         self.interaction_area.graph.clear_edges()
         self.update()
 
     def link_nodes(self):
+        """ Enables or disables automatic linking of nodes when they are added to the graph. """
         self.interaction_area.graph.link_nodes()
         self.update()
 
     def quit_application(self):
+        """ Close the application. """
         self.close()
 
 
